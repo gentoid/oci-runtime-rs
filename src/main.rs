@@ -1,3 +1,8 @@
+mod commands;
+
 fn main() {
-    println!("Hello, world!");
+    match commands::fetch::exec("some:container") {
+        Ok(res) => println!("{:?}", res),
+        Err(err) => print!("{:?}", err),
+    }
 }
