@@ -6,3 +6,4 @@ authors = ["Viktor Lazarev <taurus101v@gmail.com>"]
 [dependencies]
 reqwest = "0.8.8"
 clap = "2.32"
+flate2 = { version = "1.0", features = ["rust_backend"], default-features = false }
