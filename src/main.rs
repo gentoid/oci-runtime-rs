@@ -7,6 +7,7 @@ extern crate error_chain;
 extern crate flate2;
 extern crate reqwest;
 extern crate tar;
+extern crate xz2;
 
 mod commands;
 
