@@ -1,6 +1,8 @@
 use reqwest;
 use std::fs::File;
 
+use errors::*;
+
 pub struct ContainerName<'cn> {
     name: &'cn str,
     tag: &'cn str,
@@ -16,21 +18,9 @@ impl<'cn> ContainerName<'cn> {
     }
 }
 
-pub fn exec(url: &str, save_to: &str) -> Result<String, String> { // TODO: do not use stringified API's
-    println!("{:?}", save_to);
-    // ContainerName::parse(container_name).map(fetch).ok_or("Cannot parse container name")
-    match reqwest::get(url) {
-        Ok(mut resp) => {
-            match File::create(save_to) {
-                Ok(mut file) => {
-                    match resp.copy_to(& mut file) {
-                        Ok(bytes) => Ok(format!("Image just has been fetched and wrote {} bytes", bytes)),
-                        Err(what) => Err(format!("Cannot write data: {}", what))
-                    }
-                }
-                Err(r) => Err(format!("Cannot open file {}", r))
-            }
-        }
-        Err(w) => Err(format!("Cannot get data {}", w))
-    }
+pub fn exec(url: &str, save_to: &str) -> Result<String> { // TODO: do not use stringified API's
+    let mut file = File::create(save_to).map_err(|err| format!("Cannot open file to save image to: {}", err))?;
+    let mut resp = reqwest::get(url).map_err(|err| format!("Cannot get data: {:?}", err))?;
+    resp.copy_to(& mut file).map_err(|err| format!("Cannot write data: {:?}", err))?;
+    Ok(format!("Image has been saved to {:?}", save_to))
 }

@@ -1,11 +1,22 @@
+#![recursion_limit = "1024"]
+
 extern crate clap;
+#[macro_use]
+extern crate error_chain;
 extern crate flate2;
 extern crate reqwest;
 extern crate tar;
 
 mod commands;
 
+mod errors {
+    // Create the Error, ErrorKind, ResultExt, and Result types
+    error_chain! {}
+}
+
 use clap::{Arg, App, SubCommand};
+use errors::*;
+
 
 fn main() {
     let matches = App::new("roci")
