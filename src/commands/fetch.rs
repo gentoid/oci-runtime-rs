@@ -1,3 +1,6 @@
+use reqwest;
+use std::fs::File;
+
 pub struct ContainerName<'cn> {
     name: &'cn str,
     tag: &'cn str,
@@ -13,10 +16,21 @@ impl<'cn> ContainerName<'cn> {
     }
 }
 
-pub fn exec(container_name: &str) -> Result<&str, &str> { // TODO: do not use stringified API's
-    ContainerName::parse(container_name).map(fetch).ok_or("Cannot parse container name")
-}
+pub fn exec(url: &str) -> Result<String, String> { // TODO: do not use stringified API's
+    // ContainerName::parse(container_name).map(fetch).ok_or("Cannot parse container name")
+    match reqwest::get(url) {
+        Ok(mut resp) => {
+            match File::create("image.aci") {
+                Ok(mut file) => {
+                    match resp.copy_to(& mut file) {
+                        Ok(bytes) => Ok(format!("Image just has been fetched and wrote {} bytes", bytes)),
+                        Err(what) => Err(format!("Cannot write data: {}", what))
+                    }
+                }
+                Err(r) => Err(format!("Cannot open file {}", r))
+            }
 
-fn fetch(cn: ContainerName) -> &str {
-    "hello"
+        }
+        Err(w) => Err(format!("Cannot get data {}", w))
+    }
 }
