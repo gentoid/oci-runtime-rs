@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate flate2;
 extern crate reqwest;
 
 mod commands;
@@ -20,12 +21,29 @@ fn main() {
                 .help("Where it should save fetched image. Default is: image.aci")
                 .required(false)
                 .index(2)))
+        .subcommand(SubCommand::with_name("unpack")
+            .about("Unpacks local image")
+            .arg(Arg::with_name("LOCAL_IMAGE")
+                .required(true)
+                .index(1))
+            .arg(Arg::with_name("UNPACK_TO")
+                .required(false)
+                .index(2)))
         .get_matches();
 
     if let Some(fetch_match) = matches.subcommand_matches("fetch") {
         let uri = fetch_match.value_of("IMAGE_URI").unwrap();
         let save_to = fetch_match.value_of("SAVE_TO").unwrap_or("image.aci");
         match commands::fetch::exec(uri, save_to) {
+            Ok(res) => println!("{:?}", res),
+            Err(err) => print!("{:?}", err),
+        }
+    }
+
+    if let Some(unpack_match) = matches.subcommand_matches("unpack") {
+        let image = unpack_match.value_of("LOCAL_IMAGE").unwrap();
+        let unpack_to = unpack_match.value_of("UNPACK_TO").unwrap_or("unpacked.img");
+        match commands::unpack::exec(image, unpack_to) {
             Ok(res) => println!("{:?}", res),
             Err(err) => print!("{:?}", err),
         }
