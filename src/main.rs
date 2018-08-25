@@ -15,8 +15,6 @@ mod errors {
 }
 
 use clap::{Arg, App, SubCommand};
-use errors::*;
-
 
 fn main() {
     let matches = App::new("roci")
@@ -47,8 +45,11 @@ fn main() {
         let uri = fetch_match.value_of("IMAGE_URI").unwrap();
         let save_to = fetch_match.value_of("SAVE_TO").unwrap_or("image.aci");
         match commands::fetch::exec(uri, save_to) {
-            Ok(res) => println!("{:?}", res),
-            Err(err) => print!("{:?}", err),
+            Ok(res) => println!("{}", res),
+            Err(err) => {
+                println!("{}", err);
+                ::std::process::exit(1);
+            }
         }
     }
 
@@ -56,8 +57,11 @@ fn main() {
         let image = unpack_match.value_of("LOCAL_IMAGE").unwrap();
         let unpack_to = unpack_match.value_of("UNPACK_TO").unwrap_or("unpacked.img");
         match commands::unpack::exec(image, unpack_to) {
-            Ok(res) => println!("{:?}", res),
-            Err(err) => print!("{:?}", err),
+            Ok(res) => println!("{}", res),
+            Err(err) => {
+                println!("{}", err);
+                ::std::process::exit(1);
+            }
         }
     }
 }
