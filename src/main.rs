@@ -1,5 +1,6 @@
 #![recursion_limit = "1024"]
 
+extern crate bzip2;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;

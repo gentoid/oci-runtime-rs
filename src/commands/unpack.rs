@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 use std::io::SeekFrom;
 use std::fs::File;
+use bzip2::read::BzDecoder;
 use flate2::read::GzDecoder;
 use tar::Archive;
 
@@ -21,6 +22,12 @@ pub fn exec(filename: &str, unpack_to: &str) -> Result<String> {
             println!("We've found a GZip archive");
             let mut data = Vec::new();
             GzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read gzipped data: {:?}", err))?;
+            Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
+        }
+        [0x42, 0x5a, 0x68, _, _] => {
+            println!("We've found a BZip2 archive");
+            let mut data = Vec::new();
+            BzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read bzipped data: {:?}", err))?;
             Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
         }
         _ => return Err(format!("We cannot recognize file format for {}", filename).into())
