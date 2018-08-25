@@ -1,6 +1,7 @@
 extern crate clap;
 extern crate flate2;
 extern crate reqwest;
+extern crate tar;
 
 mod commands;
 
