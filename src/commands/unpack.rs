@@ -18,27 +18,22 @@ pub fn exec(filename: &str, unpack_to: &str) -> Result<String> {
     let mut file = handle.get_ref();
     file.seek(SeekFrom::Start(0)).map_err(|err| format!("Cannot reset cursor for {}: {:?}", filename, err))?;
 
+    let mut data = Vec::new();
+
     match header {
         [0x1f, 0x8b, 0x08, _, _, _] => {
-            println!("We've found a GZip archive");
-            let mut data = Vec::new();
-            GzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read gzipped data: {:?}", err))?;
-            Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
+            GzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read GZip data: {:?}", err))?;
         }
         [0x42, 0x5a, 0x68, _, _, _] => {
-            println!("We've found a BZip2 archive");
-            let mut data = Vec::new();
-            BzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read bzipped data: {:?}", err))?;
-            Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
+            BzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read BZip data: {:?}", err))?;
         }
         [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00] => {
-            println!("We've found an XZ archive");
-            let mut data = Vec::new();
-            XzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read bzipped data: {:?}", err))?;
-            Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
+            XzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read XZ data: {:?}", err))?;
         }
         _ => return Err(format!("We cannot recognize file format for {}", filename).into())
     }
+
+    Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
 
     Ok(format!("{:?} is successfully unpacked!", filename))
 }
