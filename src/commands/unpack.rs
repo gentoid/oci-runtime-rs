@@ -30,7 +30,9 @@ pub fn exec(filename: &str, unpack_to: &str) -> Result<String> {
         [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00] => {
             XzDecoder::new(file).read_to_end(&mut data).map_err(|err| format!("Cannot read XZ data: {:?}", err))?;
         }
-        _ => return Err(format!("We cannot recognize file format for {}", filename).into())
+        _ => {
+            file.read_to_end(&mut data).map_err(|err| format!("Cannot read file: {:?}", err))?;
+        }
     }
 
     Archive::new(&data[..]).unpack(unpack_to).map_err(|err| format!("There was an error while unpack tar'ed image: {:?}", err))?;
