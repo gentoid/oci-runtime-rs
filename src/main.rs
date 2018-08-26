@@ -6,6 +6,7 @@ extern crate clap;
 extern crate error_chain;
 extern crate flate2;
 extern crate reqwest;
+extern crate scraper;
 extern crate tar;
 extern crate xz2;
 
